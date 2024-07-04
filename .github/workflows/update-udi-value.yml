@@ -1,0 +1,37 @@
+name: Update UDI Value
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Esto se ejecutará diariamente a la medianoche
+  workflow_dispatch:
+
+jobs:
+  update-udi:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Fetch UDI Value
+        env:
+          BANXICO_API_TOKEN: ${{ secrets.BANXICO_API_TOKEN }}
+        run: |
+          response=$(curl -s -H "Bmx-Token: $BANXICO_API_TOKEN" "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SP68257/datos/oportuno")
+          udi_value=$(echo $response | jq -r '.bmx.series[0].datos[0].dato')
+          udi_date=$(echo $response | jq -r '.bmx.series[0].datos[0].fecha')
+          echo "udi_value=$udi_value" >> $GITHUB_ENV
+          echo "udi_date=$udi_date" >> $GITHUB_ENV
+
+      - name: Update index.html
+        run: |
+          sed -i "s|Valor de Referencia de 1 UDI.*</h1>|Valor de Referencia de 1 UDI al día de $UDI_DATE</h1>|" index.html
+          sed -i "s|Cargando...|1 UDI = $UDI_VALUE MXN|" index.html
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Update UDI value"
+          git push
