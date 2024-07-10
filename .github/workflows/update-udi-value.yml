@@ -8,23 +8,28 @@ on:
 jobs:
   update-udi:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Fetch UDI Value
+        id: fetch_udi
         env:
           BANXICO_API_TOKEN: ${{ secrets.BANXICO_API_TOKEN }}
         run: |
-          response=$(curl -s -H "Bmx-Token: $BANXICO_API_TOKEN" "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SP68257/datos/oportuno")
+          response=$(curl -s -H "Bmx-Token: $BANXICO_API_TOKEN" "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SERIES_ID/datos/oport")
           udi_value=$(echo $response | jq -r '.bmx.series[0].datos[0].dato')
           udi_date=$(echo $response | jq -r '.bmx.series[0].datos[0].fecha')
-          echo "udi_value=$udi_value" >> $GITHUB_ENV
-          echo "udi_date=$udi_date" >> $GITHUB_ENV
+          echo "::set-output name=udi_value::$udi_value"
+          echo "::set-output name=udi_date::$udi_date"
 
       - name: Update index.html
         run: |
+          udi_value=${{ steps.fetch_udi.outputs.udi_value }}
+          udi_date=${{ steps.fetch_udi.outputs.udi_date }}
           sed -i "s/<h1>Valor de Referencia de 1 UDI.*/Valor de Referencia de 1 UDI al día de $UDI_DATE<\/h1>/" index.html
           sed -i "s/<p id="udi-value">.*/1 UDI = $UDI_VALUE MXN/" index.html
 
