@@ -20,7 +20,7 @@ jobs:
         env:
           BANXICO_API_TOKEN: ${{ secrets.BANXICO_API_TOKEN }}
         run: |
-          response=$(curl -s -H "Bmx-Token: $BANXICO_API_TOKEN" "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SERIES_ID/datos/oport")
+          response=$(curl -s -H "Bmx-Token: $BANXICO_API_TOKEN" "https://www.banxico.org.mx/SieAPIRest/service/v1/series/SP68257/datos/oportuno")
           udi_value=$(echo $response | jq -r '.bmx.series[0].datos[0].dato')
           udi_date=$(echo $response | jq -r '.bmx.series[0].datos[0].fecha')
           echo "::set-output name=udi_value::$udi_value"
