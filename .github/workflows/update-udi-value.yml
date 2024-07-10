@@ -25,8 +25,8 @@ jobs:
 
       - name: Update index.html
         run: |
-          sed -i "s/Valor de Referencia de 1 UDI.*<\/h1>/Valor de Referencia de 1 UDI al día de $UDI_DATE<\/h1>/" index.html
-          sed -i "s/Cargando.../1 UDI = $UDI_VALUE MXN/" index.html
+          sed -i "s/<h1>Valor de Referencia de 1 UDI.*/Valor de Referencia de 1 UDI al día de $UDI_DATE<\/h1>/" index.html
+          sed -i "s/<p id="udi-value">.*/1 UDI = $UDI_VALUE MXN/" index.html
 
       - name: Commit and push changes
         env:
