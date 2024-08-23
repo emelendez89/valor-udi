@@ -1,8 +1,6 @@
 name: Update UDI Value
 
 on:
-  schedule:
-    - cron: '0 0 * * *' # Esto se ejecutará diariamente a la medianoche
   workflow_dispatch:
 
 jobs:
